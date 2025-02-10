@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./JobList.css";
 
-const jobs = [
+const defaultJobs = [
   {
     role: "Software Engineer",
     description: "Develop and maintain web applications.",
@@ -20,16 +20,44 @@ const jobs = [
     experience: "1-3 years",
     skills: ["HTML", "CSS", "JavaScript", "React"],
   },
-  {
-    role: "Backend Developer",
-    description: "Develop server-side logic and APIs.",
-    experience: "3-5 years",
-    skills: ["Node.js", "Express", "MongoDB"],
-  },
 ];
 
 function JobList() {
+  const [jobs, setJobs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    // Fetch all job posts initially
+    fetch("http://localhost:9000/posts")
+      .then((response) => response.json())
+      .then((data) => setJobs(data.length ? data : defaultJobs))
+      .catch((error) => {
+        console.error("Error fetching jobs:", error);
+        setJobs(defaultJobs);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (searchTerm.length > 2) {
+      // Fetch jobs based on search term
+      fetch(`http://localhost:9000/posts?search=${searchTerm}`)
+        .then((response) => response.json())
+        .then((data) => setJobs(data.length ? data : defaultJobs))
+        .catch((error) => {
+          console.error("Error fetching jobs:", error);
+          setJobs(defaultJobs);
+        });
+    } else {
+      // Fetch all job posts if search term is less than or equal to 2 characters
+      fetch("http://localhost:9000/posts")
+        .then((response) => response.json())
+        .then((data) => setJobs(data.length ? data : defaultJobs))
+        .catch((error) => {
+          console.error("Error fetching jobs:", error);
+          setJobs(defaultJobs);
+        });
+    }
+  }, [searchTerm]);
 
   const filteredJobs = jobs.filter((job) => {
     const searchString = `${job.role} ${job.description} ${

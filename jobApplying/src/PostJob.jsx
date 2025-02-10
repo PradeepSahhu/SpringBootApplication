@@ -10,7 +10,26 @@ function PostJob() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const job = { role, description, experience, skills: skills.split(",") };
-    console.log("Job posted:", job);
+
+    fetch("http://localhost:9000/allPosts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(job),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Job posted:", data);
+        // Optionally, you can clear the form fields after successful submission
+        setRole("");
+        setDescription("");
+        setExperience("");
+        setSkills("");
+      })
+      .catch((error) => {
+        console.error("Error posting job:", error);
+      });
   };
 
   return (
